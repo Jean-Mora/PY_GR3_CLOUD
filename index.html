@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRE & EdTech Analytics - PUCE</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen selection:bg-blue-600 selection:text-white antialiased">
+
+    <div class="container mx-auto px-4 py-6 sm:py-10 max-w-5xl">
+        
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-6 mb-8 gap-4">
+            <div class="space-y-1">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="bg-blue-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">PUCE EdTech</span>
+                    <span class="text-slate-500 text-xs font-mono bg-slate-900 px-2 py-0.5 rounded border border-slate-800">v1.7.0-stable</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">Plataforma de Control Escolar</h1>
+                <p class="text-slate-400 text-xs sm:text-sm">Sistema de Telemetría SRE, Observabilidad y Analítica Multi-Tabla</p>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                <button onclick="simularCaos()" class="flex-1 md:flex-none bg-slate-900 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-slate-800 hover:border-rose-900/60 text-xs font-semibold px-4 py-2.5 rounded-xl transition-all duration-200 shadow-sm cursor-pointer active:scale-95">
+                    ⚡ Simular Caos SRE
+                </button>
+                <div id="sli-badge" class="flex-1 md:flex-none text-center px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-slate-900 text-slate-400 border border-slate-800 shadow-inner">
+                    Cargando SLI...
+                </div>
+            </div>
+        </header>
+
+        <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mb-8">
+            <div class="bg-slate-900/60 backdrop-blur-md p-5 rounded-2xl border border-slate-800 shadow-xl flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center text-slate-400">
+                        <span class="text-[11px] font-bold uppercase tracking-wider">Latencia del API</span>
+                        <span class="text-[10px] font-mono text-blue-400 bg-blue-950/30 px-1.5 py-0.5 rounded">SLO &lt; 500ms</span>
+                    </div>
+                    <div class="flex items-baseline gap-2 mt-3">
+                        <h3 id="latency-val" class="text-3xl sm:text-4xl font-black text-white tracking-tight">-- ms</h3>
+                        <span class="text-xs text-emerald-400 font-semibold" id="latency-status">Estable</span>
+                    </div>
+                </div>
+                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-5 overflow-hidden">
+                    <div id="latency-bar" class="bg-blue-500 h-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/60 backdrop-blur-md p-5 rounded-2xl border border-slate-800 shadow-xl flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center text-slate-400">
+                        <span class="text-[11px] font-bold uppercase tracking-wider">Estado del Nodo</span>
+                        <span class="flex h-2 w-2 relative">
+                            <span id="ping-pulse-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-slate-500"></span>
+                            <span id="ping-pulse-dot" class="relative inline-flex rounded-full h-2 w-2 bg-slate-600"></span>
+                        </span>
+                    </div>
+                    <h3 id="status-val" class="text-3xl sm:text-4xl font-black text-slate-400 tracking-tight mt-3">Checking</h3>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-5 font-mono">Gateway: AWS EC2 (Ubuntu)</p>
+            </div>
+
+            <div class="bg-slate-900/60 backdrop-blur-md p-5 rounded-2xl border border-slate-800 shadow-xl sm:col-span-2 md:col-span-1 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center text-slate-400">
+                        <span class="text-[11px] font-bold uppercase tracking-wider">Rendimiento Académico</span>
+                        <span id="global-average" class="text-[11px] text-blue-400 font-mono font-bold">Promedio: --</span>
+                    </div>
+                    <h3 id="global-status" class="text-3xl sm:text-4xl font-black text-white tracking-tight mt-3">--</h3>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-5">Muestra estadística global</p>
+            </div>
+        </section>
+
+        <div class="bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center shadow-lg">
+            <div class="relative w-full sm:w-80 md:w-96">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500 text-sm">
+                    🔍
+                </span>
+                <input type="text" id="search-input" oninput="filtrarDatos()" placeholder="Buscar estudiante, materia o profesor..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-150">
+            </div>
+            <div class="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto text-xs text-slate-400 font-mono">
+                <span class="text-slate-500">Filtrados:</span>
+                <span id="filtered-count" class="text-blue-400 font-bold bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">0</span>
+                <span class="text-slate-600">/</span>
+                <span id="counter-badge" class="text-slate-300 font-semibold">0</span>
+            </div>
+        </div>
+
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            
+            <div class="lg:col-span-2 bg-slate-900/20 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr class="bg-slate-900/80 border-b border-slate-800 text-[10px] font-bold uppercase text-slate-400 tracking-wider">
+                                <th class="px-6 py-4 font-mono w-16">ID</th>
+                                <th class="px-6 py-4">Estudiante</th>
+                                <th class="px-6 py-4">Asignatura</th>
+                                <th class="px-6 py-4">Profesor</th>
+                                <th class="px-6 py-4 text-center w-24">Nota Final</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-estudiantes" class="divide-y divide-slate-900 text-sm text-slate-300">
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-slate-500">
+                                    <div class="inline-block animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-500 mr-2 align-middle"></div>
+                                    Estableciendo sincronización de datos relacionales...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-slate-900/40 px-6 py-4 border-t border-slate-800/80 flex justify-between items-center">
+                    <button id="btn-prev" onclick="cambiarPagina(-1)" class="bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold px-3 py-2 rounded-xl border border-slate-800 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-slate-900 transition-all cursor-pointer">
+                        Anterior
+                    </button>
+                    <span id="page-info" class="text-xs text-slate-400 font-mono bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-900">Página 1 de 1</span>
+                    <button id="btn-next" onclick="cambiarPagina(1)" class="bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold px-3 py-2 rounded-xl border border-slate-800 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-slate-900 transition-all cursor-pointer">
+                        Siguiente
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/40 p-5 rounded-2xl border border-slate-800 shadow-xl space-y-6">
+                <div>
+                    <h4 class="font-bold text-slate-200 text-xs uppercase tracking-wider mb-4 border-b border-slate-800 pb-2">Distribución Métricas</h4>
+                    <div class="space-y-4" id="distribution-container">
+                        <p class="text-xs text-slate-500 text-center py-4">Procesando flujos académicos...</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        let estudiantesData = [];
+        let filtradosData = [];
+        let paginaActual = 1;
+        const registrosPorPagina = 10;
+        let caosActivo = false;
+
+        function simularCaos() {
+            caosActivo = !caosActivo;
+            alert(caosActivo ? "⚠️ Caos SRE Activado: Introduciendo inyección de latencia (650ms)." : "✅ Estado Estable: Retornando a métricas normales de producción.");
+        }
+
+        async function cargarDatosIniciales() {
+            const t0 = Date.now();
+            const latencyVal = document.getElementById('latency-val');
+            const latencyStatus = document.getElementById('latency-status');
+            const latencyBar = document.getElementById('latency-bar');
+            const statusVal = document.getElementById('status-val');
+            const sliBadge = document.getElementById('sli-badge');
+            const pulsePing = document.getElementById('ping-pulse-ping');
+            const pulseDot = document.getElementById('ping-pulse-dot');
+
+            try {
+                if (caosActivo) await new Promise(r => setTimeout(r, 650));
+
+                const res = await fetch('/api/v1/estudiantes/notas');
+                if (!res.ok) throw new Error("Fault");
+                const json = await res.json();
+                
+                const t1 = Date.now();
+                let latencia = json.latency_ms || (t1 - t0);
+                if (caosActivo) latencia += 650;
+
+                latencyVal.textContent = `${latencia} ms`;
+                latencyBar.style.width = `${Math.min((latencia / 600) * 100, 100)}%`;
+
+                if (latencia < 500) {
+                    latencyStatus.textContent = "Estable";
+                    latencyStatus.className = "text-xs text-emerald-400 font-semibold";
+                    latencyBar.className = "bg-blue-500 h-full transition-all duration-300";
+                    statusVal.textContent = "ONLINE";
+                    statusVal.className = "text-3xl sm:text-4xl font-black text-emerald-400 tracking-tight mt-3";
+                    pulsePing.className = "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-emerald-400";
+                    pulseDot.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-500";
+                    sliBadge.textContent = "SLI: CUMPLIENDO";
+                    sliBadge.className = "px-3.5 py-2 rounded-xl font-bold text-xs uppercase tracking-wider bg-emerald-950/20 text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/5";
+                } else {
+                    latencyStatus.textContent = "Saturado";
+                    latencyStatus.className = "text-xs text-amber-400 font-semibold";
+                    latencyBar.className = "bg-amber-500 h-full transition-all duration-300";
+                    sliBadge.textContent = "SLI: DEGRADADO";
+                    sliBadge.className = "px-3.5 py-2 rounded-xl font-bold text-xs uppercase tracking-wider bg-amber-950/20 text-amber-400 border border-amber-500/20";
+                }
+
+                if (json.success) {
+                    estudiantesData = json.data;
+                    if (document.getElementById('search-input').value === "") {
+                        filtradosData = [...estudiantesData];
+                        actualizarAnalitica();
+                        renderizarTabla();
+                    }
+                }
+            } catch (err) {
+                manejarErrorSistema();
+            }
+        }
+
+        function renderizarTabla() {
+            const tabla = document.getElementById('tabla-estudiantes');
+            const counterBadge = document.getElementById('counter-badge');
+            const filteredCount = document.getElementById('filtered-count');
+            const pageInfo = document.getElementById('page-info');
+            const btnPrev = document.getElementById('btn-prev');
+            const btnNext = document.getElementById('btn-next');
+
+            counterBadge.textContent = estudiantesData.length;
+            filteredCount.textContent = filtradosData.length;
+
+            if (filtradosData.length === 0) {
+                tabla.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500 font-mono text-xs">Sin registros que coincidan con los criterios de búsqueda.</td></tr>`;
+                pageInfo.textContent = "Página 0 de 0";
+                btnPrev.disabled = true;
+                btnNext.disabled = true;
+                return;
+            }
+
+            const totalPaginas = Math.ceil(filtradosData.length / registrosPorPagina);
+            if (paginaActual > totalPaginas) paginaActual = totalPaginas || 1;
+
+            pageInfo.textContent = `Página ${paginaActual} de ${totalPaginas}`;
+            btnPrev.disabled = paginaActual === 1;
+            btnNext.disabled = paginaActual === totalPaginas;
+
+            const inicio = (paginaActual - 1) * registrosPorPagina;
+            const fin = inicio + registrosPorPagina;
+            const itemsPagina = filtradosData.slice(inicio, fin);
+
+            tabla.innerHTML = itemsPagina.map(estudiante => `
+                <tr class="hover:bg-slate-900/50 transition-colors border-b border-slate-900/40">
+                    <td class="px-6 py-4 font-mono text-slate-500 text-xs">#000${estudiante.id}</td>
+                    <td class="px-6 py-4 font-bold text-white tracking-wide text-xs sm:text-sm">${estudiante.nombre}</td>
+                    <td class="px-6 py-4 text-slate-300 text-xs">${estudiante.materia}</td>
+                    <td class="px-6 py-4 text-slate-400 font-medium text-xs">${estudiante.profesor || 'Por asignar'}</td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="inline-block w-14 text-center py-1 rounded-lg text-xs font-black tracking-wider shadow-sm ${estudiante.nota >= 7 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
+                            ${Number(estudiante.nota).toFixed(2)}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filtrarDatos() {
+            const termino = document.getElementById('search-input').value.toLowerCase().trim();
+            if (termino === "") {
+                filtradosData = [...estudiantesData];
+            } else {
+                filtradosData = estudiantesData.filter(e => 
+                    e.nombre.toLowerCase().includes(termino) || 
+                    e.materia.toLowerCase().includes(termino) ||
+                    (e.profesor && e.profesor.toLowerCase().includes(termino))
+                );
+            }
+            paginaActual = 1;
+            renderizarTabla();
+        }
+
+        function cambiarPagina(direccion) {
+            paginaActual += direccion;
+            renderizarTabla();
+        }
+
+        function actualizarAnalitica() {
+            if (estudiantesData.length === 0) return;
+
+            const globalAverage = document.getElementById('global-average');
+            const globalStatus = document.getElementById('global-status');
+            const distContainer = document.getElementById('distribution-container');
+
+            const suma = estudiantesData.reduce((acc, curr) => acc + Number(curr.nota), 0);
+            const promedio = (suma / estudiantesData.length).toFixed(2);
+            
+            globalAverage.textContent = `Promedio: ${promedio}`;
+            globalStatus.textContent = promedio >= 7 ? "Estable" : "Alerta Académica";
+            globalStatus.className = `text-3xl sm:text-4xl font-black tracking-tight mt-3 ${promedio >= 7 ? 'text-emerald-400' : 'text-amber-400'}`;
+
+            const aprobados = estudiantesData.filter(e => e.nota >= 7).length;
+            const pctAprobados = ((aprobados / estudiantesData.length) * 100).toFixed(0);
+            const pctReprobados = 100 - pctAprobados;
+
+            distContainer.innerHTML = `
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-xs font-mono text-slate-400">
+                        <span>Promovidos (Nota &ge; 7)</span>
+                        <span class="text-emerald-400 font-bold">${pctAprobados}%</span>
+                    </div>
+                    <div class="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-slate-800">
+                        <div class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: ${pctAprobados}%"></div>
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-xs font-mono text-slate-400">
+                        <span>En Retención (Nota &lt; 7)</span>
+                        <span class="text-rose-400 font-bold">${pctReprobados}%</span>
+                    </div>
+                    <div class="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-slate-800">
+                        <div class="bg-rose-500 h-full rounded-full transition-all duration-500" style="width: ${pctReprobados}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function manejarErrorSistema() {
+            document.getElementById('latency-val').textContent = "-- ms";
+            document.getElementById('latency-bar').style.width = '0%';
+            
+            const statusVal = document.getElementById('status-val');
+            statusVal.textContent = "OFFLINE";
+            statusVal.className = "text-3xl sm:text-4xl font-black text-rose-500 tracking-tight mt-3";
+            
+            document.getElementById('ping-pulse-ping').className = "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-rose-500";
+            document.getElementById('ping-pulse-dot').className = "relative inline-flex rounded-full h-2 w-2 bg-rose-500";
+
+            const sliBadge = document.getElementById('sli-badge');
+            sliBadge.textContent = "SLI: VIOLADO";
+            sliBadge.className = "px-3.5 py-2 rounded-xl font-bold text-xs uppercase tracking-wider bg-rose-950/30 text-rose-400 border border-rose-500/30 animate-pulse";
+            
+            document.getElementById('tabla-estudiantes').innerHTML = `
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center text-rose-400 font-medium bg-rose-950/5">
+                        <div class="text-lg font-bold mb-1">⚠️ Outage Detectado</div>
+                        <p class="text-xs text-rose-300/50 max-w-sm mx-auto">Error crítico de conectividad. No se puede establecer comunicación remota con el API Gateway.</p>
+                    </td>
+                </tr>
+            `;
+        }
+
+        setInterval(cargarDatosIniciales, 2500);
+        cargarDatosIniciales();
+    </script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+-- Limpiar la tabla de estudiantes para la carga masiva normalizada
+TRUNCATE TABLE estudiantes RESTART IDENTITY;
+
+-- Inserción masiva de 100 registros académicos asociados por ID de materia
+-- 1: Arquitectura Cloud, 2: SRE & Observabilidad, 3: Desarrollo Web Fullstack, 4: Bases de Datos II, 5: Sistemas Operativos
+INSERT INTO estudiantes (nombre, materia_id, nota) VALUES
+('Jean Pierre Mora', 1, 9.50), ('Carlos Andrade', 1, 8.20), ('María José Benítez', 1, 4.50),
+('Anahí Cisneros', 2, 9.80), ('Kevin Espinosa', 2, 6.00), ('Luis Fernando Gómez', 2, 7.10),
+('Diana Gutiérrez', 3, 8.90), ('Bryan Jacome', 3, 5.50), ('Mateo López', 3, 10.00),
+('Paola Ortega', 4, 6.80), ('Alejandro Pazmiño', 4, 3.20), ('Sonia Quishpe', 4, 8.00),
+('Roberto Toapanta', 5, 7.50), ('Valeria Valencia', 5, 5.90), ('William Zambrano', 5, 9.00),
+('Alejandra Aguirre', 1, 8.70), ('Andrés Alvear', 2, 6.20), ('Beatriz Barahona', 3, 7.80),
+('Christian Bustamante', 4, 5.10), ('Daniela Cárdenas', 5, 9.30), ('Édison Cevallos', 1, 4.80),
+('Fabiola Dávila', 2, 8.00), ('Gabriel Erazo', 3, 6.90), ('Gabriela Espinoza', 4, 7.20),
+('Hugo Flores', 5, 5.40), ('Isabel Franco', 1, 9.10), ('Jaime Freire', 2, 6.50),
+('Karla Galarza', 3, 8.30), ('Leonardo Garzón', 4, 3.90), ('Lorena Guerrero', 5, 7.00),
+('Manuel Heredia', 1, 8.10), ('Mónica Herrera', 2, 5.80), ('Nelson Jaramillo', 3, 9.60),
+('Olga Jiménez', 4, 7.40), ('Patricio Lara', 5, 4.20), ('Ramiro León', 1, 6.70),
+('Sandra Maldonado', 2, 8.50), ('Santiago Medina', 3, 7.90), ('Tatiana Mendoza', 4, 6.10),
+('Víctor Miranda', 5, 9.20), ('Yolanda Moncayo', 1, 5.30), ('Álex Morales', 2, 7.60),
+('Alicia Moreno', 3, 8.80), ('Arturo Muñoz', 4, 4.70), ('Bárbara Narváez', 5, 6.40),
+('César Navas', 1, 9.00), ('Cristina Ochoa', 2, 8.20), ('Diego Ortiz', 3, 5.00),
+('Elena Pacheco', 4, 7.70), ('Enrique Palacios', 5, 6.30), ('Fernando Paredes', 1, 8.40),
+('Gisela Peña', 2, 3.50), ('Gonzalo Pesántez', 3, 9.70), ('Irene Pinto', 4, 7.10),
+('Iván Plaza', 5, 5.60), ('Javier Ponce', 1, 8.90), ('Jessica Reinoso', 2, 6.60),
+('Jorge Riofrío', 3, 7.30), ('Juana Rivas', 4, 4.10), ('Julio Rivera', 5, 8.60),
+('Lourdes Rodríguez', 1, 9.40), ('Lucas Rojas', 2, 5.20), ('Lucía Romero', 3, 7.50),
+('Luis Rosales', 4, 6.80), ('Magdalena Ruiz', 5, 9.90), ('Marco Salazar', 1, 4.90),
+('Margarita Salinas', 2, 8.30), ('Martha Sanchéz', 3, 6.70), ('Martín Sandoval', 4, 7.80),
+('Mercedes Segura', 5, 5.70), ('Miguel Silva', 1, 8.00), ('Miriam Solano', 2, 9.10),
+('Nancy Solís', 3, 3.80), ('Óscar Suárez', 4, 7.40), ('Pablo Terán', 5, 6.50),
+('Patricia Torres', 1, 8.60), ('Paúl Vacacela', 2, 5.90), ('Pedro Valdivieso', 3, 9.20),
+('Rafael Valencia', 4, 7.00), ('Raúl Vallejo', 5, 4.40), ('René Vargas', 1, 7.90),
+('Ricardo Vasconez', 2, 8.40), ('Rosa Vega', 3, 6.20), ('Rubén Velasco', 4, 9.50),
+('Sara Véliz', 5, 5.10), ('Silvia Vera', 1, 7.30), ('Stalin Vinueza', 2, 8.80),
+('Susana Yánez', 3, 4.60), ('Xavier Yepez', 4, 6.90), ('Zhandling Zambrano', 5, 8.10),
+('Adriana Zurita', 1, 9.00), ('Agustín Cárdenas', 2, 5.50), ('Amparo Almeida', 3, 7.70),
+('Bairon Franco', 4, 3.20), ('Camila Ibarra', 5, 8.40), ('Darío Lozano', 1, 6.30),
+('Estefanía Merchán', 2, 9.70), ('Freddy Noboa', 3, 7.20), ('Gladys Paguay', 4, 5.80),
+('Israel Sarango', 5, 8.00);

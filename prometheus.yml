@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 5s # Monitoreo estricto cada 5 segundos para la defensa
+
+scrape_configs:
+  - job_name: 'academic-app'
+    static_configs:
+      - targets: ['academic-app:3000']
